@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Hunter — A Tale of Two Cities</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0d1117;--parchment:#f7f0e3;--parchment2:#ede4cf;--parchment3:#e0d5be;
+  --gold:#b8952a;--gold2:#d4af5a;--gold-light:#f0d98a;
+  --burgundy:#6b1f2a;--navy:#1a2744;--cream:#fdf8f0;
+  --text-dark:#1c1208;--text-mid:#4a3b1f;--text-light:#7a6540;
+  --border-gold:rgba(184,149,42,0.35);--border-dark:rgba(28,18,8,0.18);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 30px,rgba(184,149,42,0.025) 30px,rgba(184,149,42,0.025) 31px),repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(184,149,42,0.025) 30px,rgba(184,149,42,0.025) 31px);pointer-events:none;z-index:0;}
+.page-wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 1rem 5rem;}
+
+/* MASTHEAD */
+.masthead{text-align:center;padding:2.5rem 1rem 1.75rem;border-bottom:1px solid var(--border-gold);margin-bottom:2rem;}
+.masthead-eyebrow{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold2);margin-bottom:0.85rem;}
+.masthead-title{font-family:'IM Fell English',serif;font-size:44px;color:var(--parchment);line-height:1.15;margin-bottom:0.3rem;}
+.masthead-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:15px;color:var(--gold2);}
+.orn{color:var(--gold);margin:0 0.4rem;}
+.masthead-rule{display:flex;align-items:center;gap:0.75rem;margin:1rem 0 0;color:var(--gold);font-size:13px;}
+.masthead-rule::before,.masthead-rule::after{content:'';flex:1;height:1px;background:var(--border-gold);}
+
+/* CARD */
+.card{background:var(--parchment);border:1px solid var(--border-gold);border-radius:3px;padding:2rem;position:relative;box-shadow:0 6px 48px rgba(0,0,0,0.55),inset 0 0 0 5px rgba(184,149,42,0.07);}
+.card::before{content:'';position:absolute;inset:7px;border:1px solid rgba(184,149,42,0.22);border-radius:2px;pointer-events:none;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;animation:up 0.32s ease both;}
+@keyframes up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* PROGRESS */
+.prog-wrap{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:1.75rem;}
+.pd{width:8px;height:8px;border-radius:50%;background:rgba(184,149,42,0.18);border:1px solid rgba(184,149,42,0.28);transition:all 0.25s;flex-shrink:0;}
+.pd.done{background:rgba(184,149,42,0.45);border-color:var(--gold);}
+.pd.active{background:var(--gold);border-color:var(--gold2);width:24px;border-radius:4px;}
+
+/* TAGS */
+.tag{display:inline-block;font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:1rem;border:1px solid;}
+.t-w{background:rgba(184,149,42,0.1);color:var(--gold);border-color:var(--border-gold);}
+.t-1{background:rgba(26,39,68,0.07);color:var(--navy);border-color:rgba(26,39,68,0.22);}
+.t-2{background:rgba(107,31,42,0.07);color:var(--burgundy);border-color:rgba(107,31,42,0.22);}
+.t-3{background:rgba(38,78,38,0.07);color:#285a28;border-color:rgba(38,78,38,0.22);}
+.t-b{background:rgba(107,31,42,0.1);color:var(--burgundy);border-color:rgba(107,31,42,0.28);}
+
+/* TYPE */
+h1{font-family:'IM Fell English',serif;font-size:34px;color:var(--text-dark);line-height:1.2;margin-bottom:0.6rem;}
+h2{font-family:'IM Fell English',serif;font-size:26px;color:var(--text-dark);line-height:1.3;margin-bottom:0.6rem;}
+.sub{font-size:15px;color:var(--text-mid);line-height:1.7;margin-bottom:1.25rem;}
+.dec{display:flex;align-items:center;gap:0.75rem;margin:1.25rem 0;color:var(--gold);font-size:14px;}
+.dec::before,.dec::after{content:'';flex:1;height:1px;background:var(--border-gold);}
+
+/* QUOTE */
+.qbox{background:var(--parchment2);border-left:3px solid var(--gold);border-radius:0 3px 3px 0;padding:1rem 1.2rem 1rem 1rem;margin:1rem 0;position:relative;overflow:hidden;}
+.qbox .ql{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.4rem;}
+.qbox p{font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;color:var(--text-dark);font-weight:400;}
+.qbox .qm{font-family:'IM Fell English',serif;font-size:64px;color:var(--gold2);opacity:0.2;position:absolute;right:0.75rem;bottom:-0.75rem;line-height:1;pointer-events:none;}
+
+/* COACH */
+.coach{background:var(--navy);border:1px solid rgba(184,149,42,0.28);border-radius:3px;padding:1.25rem;margin:1rem 0;}
+.coach-title{font-family:'IM Fell English',serif;font-size:17px;color:var(--gold2);margin-bottom:0.75rem;display:flex;align-items:center;gap:8px;}
+.coach-title::after{content:'';flex:1;height:1px;background:rgba(184,149,42,0.22);}
+.coach p,.coach li{font-size:13px;color:rgba(247,240,227,0.84);line-height:1.7;}
+.coach ul{margin:0.45rem 0 0 1.1rem;}
+.coach li{margin-bottom:0.2rem;}
+.coach-eg{margin-top:0.75rem;padding:0.7rem 0.9rem;background:rgba(184,149,42,0.1);border-radius:2px;font-style:italic;font-size:13px;color:var(--gold-light);}
+
+/* TASK LIST */
+.tlist{margin:1.1rem 0;}
+.ti{display:flex;gap:12px;align-items:flex-start;padding:0.65rem 0;border-bottom:1px solid var(--border-dark);font-size:14px;line-height:1.55;color:var(--text-mid);}
+.ti:last-child{border-bottom:none;}
+.tn{min-width:24px;height:24px;border-radius:50%;background:var(--parchment3);border:1px solid var(--border-gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--gold);flex-shrink:0;}
+
+/* TIMER */
+.timer{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:2px;background:rgba(184,149,42,0.1);color:var(--gold);border:1px solid var(--border-gold);margin-bottom:0.85rem;letter-spacing:0.06em;}
+
+/* NAMES PILL */
+.npill{display:inline-flex;align-items:center;gap:6px;background:var(--parchment3);border:1px solid var(--border-gold);border-radius:2px;padding:4px 12px;font-size:12px;color:var(--text-mid);margin-bottom:0.85rem;font-style:italic;}
+.npill::before{content:'✒';font-style:normal;font-size:11px;color:var(--gold);}
+
+/* FORM */
+.field{margin-top:1.1rem;}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--text-light);margin-bottom:0.4rem;letter-spacing:0.05em;text-transform:uppercase;}
+input[type=text],textarea{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border-dark);border-radius:3px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);background:white;line-height:1.5;transition:border-color 0.15s,box-shadow 0.15s;}
+input[type=text]:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,149,42,0.1);}
+textarea{resize:vertical;min-height:88px;}
+.hint{font-size:11px;color:var(--text-light);margin-top:0.35rem;font-style:italic;}
+
+/* IMAGE UPLOAD */
+.iz{border:1.5px dashed var(--border-gold);border-radius:3px;padding:1.75rem 1.25rem;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;position:relative;margin-top:0.4rem;background:rgba(184,149,42,0.02);}
+.iz:hover,.iz.drag-over{background:rgba(184,149,42,0.06);border-color:var(--gold);}
+.iz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0;}
+.zi{font-size:26px;margin-bottom:0.4rem;}
+.zt{font-size:13px;color:var(--text-mid);line-height:1.5;}
+.zt strong{color:var(--text-dark);font-weight:500;}
+.img-pw{margin-top:0.85rem;display:none;position:relative;}
+.img-pw.has-img{display:block;}
+.img-prev{width:100%;max-height:280px;object-fit:contain;border-radius:3px;border:1px solid var(--border-dark);background:var(--parchment2);display:block;}
+.img-clr{position:absolute;top:8px;right:8px;background:rgba(28,18,8,0.72);color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.or-div{text-align:center;font-size:11px;color:var(--text-light);margin:0.6rem 0;position:relative;letter-spacing:0.06em;text-transform:uppercase;}
+.or-div::before,.or-div::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border-dark);}
+.or-div::before{left:0;}.or-div::after{right:0;}
+.url-row{display:flex;gap:8px;align-items:center;}
+.url-row input{margin:0;flex:1;}
+.url-row button{padding:0.65rem 1rem;border:1px solid var(--border-gold);border-radius:3px;background:var(--parchment2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--text-mid);}
+.url-row button:hover{background:var(--parchment3);}
+
+/* WARN */
+.warn{display:none;background:#fdf3e0;border:1px solid #c8870a;border-radius:3px;padding:0.75rem 1rem;margin-top:0.85rem;font-size:13px;color:#7a4800;line-height:1.5;gap:8px;align-items:flex-start;}
+.warn.show{display:flex;}
+.warn::before{content:'⚠';flex-shrink:0;}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:1.75rem;flex-wrap:wrap;align-items:center;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.65rem 1.25rem;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-dark);background:white;color:var(--text-mid);transition:all 0.15s;}
+.btn:hover{background:var(--parchment2);}
+.btn:active{transform:scale(0.98);}
+.btn-p{background:var(--navy);color:var(--parchment);border-color:var(--navy);box-shadow:0 2px 10px rgba(26,39,68,0.28);}
+.btn-p:hover{background:#243660;opacity:1;}
+.btn-s{background:var(--parchment2);color:var(--text-mid);border-color:var(--border-gold);}
+.btn-s:hover{background:var(--parchment3);}
+.btn-s.ok{color:var(--gold);border-color:var(--gold);}
+
+/* PREVIEW CARD */
+.pcard{background:white;border:1px solid var(--border-dark);border-radius:3px;padding:1.5rem;margin:1rem 0;}
+.prl{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.6rem;}
+.prn{font-family:'IM Fell English',serif;font-size:15px;color:var(--text-dark);margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border-dark);}
+.prf{font-size:10px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.07em;margin-top:0.85rem;margin-bottom:0.2rem;}
+.prv{font-size:14px;color:var(--text-dark);line-height:1.65;font-style:italic;}
+.pri{width:100%;height:auto;border-radius:3px;margin-top:0.5rem;display:block;border:1px solid var(--border-dark);}
+
+/* SHOT BOX */
+.sbox{border:1.5px dashed var(--border-gold);border-radius:3px;padding:1.25rem;text-align:center;margin:1.1rem 0;background:rgba(184,149,42,0.02);}
+.sbox p{font-size:13px;color:var(--text-mid);line-height:1.65;}
+.sbox strong{color:var(--text-dark);font-weight:500;}
+.padlet-note{background:rgba(26,39,68,0.06);border:1px solid rgba(26,39,68,0.14);border-radius:3px;padding:0.65rem 1rem;font-size:13px;color:var(--navy);line-height:1.55;}
+
+/* QUIZ */
+.qprog{font-size:11px;color:var(--text-light);margin-bottom:0.75rem;letter-spacing:0.05em;text-transform:uppercase;}
+.qq{font-family:'IM Fell English',serif;font-size:18px;line-height:1.5;margin-bottom:1rem;color:var(--text-dark);}
+.qopts{display:flex;flex-direction:column;gap:8px;}
+.qopt{padding:0.8rem 1rem;border:1px solid var(--border-dark);border-radius:3px;cursor:pointer;font-size:14px;line-height:1.5;background:white;color:var(--text-mid);text-align:left;font-family:'DM Sans',sans-serif;transition:all 0.12s;}
+.qopt:hover{background:var(--parchment2);border-color:var(--border-gold);}
+.qopt.correct{background:#edf7ed;border-color:#4a9e4a;color:#1a5c1a;pointer-events:none;}
+.qopt.wrong{background:#fdf0f0;border-color:#c85a5a;color:#7a1a1a;pointer-events:none;}
+.qopt.reveal{background:#edf7ed;border-color:#4a9e4a;color:#1a5c1a;pointer-events:none;}
+.qopt.disabled{pointer-events:none;opacity:0.6;}
+.qfb{display:none;margin-top:0.75rem;font-size:13px;color:var(--text-mid);line-height:1.65;padding:0.75rem 1rem;background:var(--parchment2);border-radius:3px;border-left:3px solid var(--gold);}
+
+/* RESULTS */
+.swrap{text-align:center;padding:1.75rem 0 1.25rem;}
+.sbig{font-family:'IM Fell English',serif;font-size:72px;color:var(--text-dark);line-height:1;margin-bottom:0.35rem;}
+.smsg{font-size:14px;color:var(--text-mid);font-style:italic;margin-bottom:1rem;}
+.sbar{height:6px;background:var(--parchment2);border-radius:3px;overflow:hidden;margin:0.75rem 0;}
+.sfill{height:100%;background:var(--gold);border-radius:3px;width:0%;transition:width 1s ease;}
+.bdown{font-size:13px;color:var(--text-mid);line-height:2.1;}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="masthead">
+    <div class="masthead-eyebrow">LSW1 · Week 12 · Breakout Room Activity</div>
+    <div class="masthead-title"><span class="orn">❧</span> Theme Hunter <span class="orn">❧</span></div>
+    <div class="masthead-sub">After Charles Dickens · A Tale of Two Cities · 1859</div>
+    <div class="masthead-rule"><span>✦</span></div>
+  </div>
+
+  <div class="card">
+
+    <!-- WELCOME -->
+    <div class="screen active" id="s-welcome">
+      <div class="prog-wrap"><div class="pd active"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-w">Breakout Rooms</span>
+      <h1>Three Rounds.<br>Five Minutes Each.</h1>
+      <p class="sub">You are not creating anything today — you are curating. Think like a critic, not a writer. Find works that already exist and carry the same argument.</p>
+      <div class="qbox"><div class="ql">Your guiding idea today</div><p>It was the best of times, it was the worst of times — and the people in power refused to see both at once.</p><div class="qm">"</div></div>
+      <div class="dec"><span>❧</span></div>
+      <div class="tlist">
+        <div class="ti"><div class="tn">1</div><span><strong>Round 1</strong> — Find a work that carries a theme from <em>A Tale of Two Cities</em></span></div>
+        <div class="ti"><div class="tn">2</div><span><strong>Round 2</strong> — Find a work that uses paradox as its main tool</span></div>
+        <div class="ti"><div class="tn">3</div><span><strong>Round 3</strong> — Build the theme of <em>Pride &amp; Prejudice</em>, then find a matching work</span></div>
+        <div class="ti"><div class="tn" style="background:rgba(107,31,42,0.08);color:var(--burgundy);border-color:rgba(107,31,42,0.25);">★</div><span><strong>Bonus</strong> — 10-question quiz on today's class</span></div>
+      </div>
+      <div class="dec"><span>✦</span></div>
+      <div class="field">
+        <label>Group members' names — required</label>
+        <input type="text" id="group-names" placeholder="e.g. Jaylen, Sofia, Marcus, Priya">
+        <p class="hint">Enter everyone's name — this will appear on all your responses and screenshots</p>
+      </div>
+      <div class="warn" id="w-welcome">Please enter your group members' names before continuing.</div>
+      <div class="btn-row"><button class="btn btn-p" onclick="startRounds()">Begin Round 1 →</button></div>
+    </div>
+
+    <!-- ROUND 1 -->
+    <div class="screen" id="s-r1">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd active"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-1">Round 1 of 3</span>
+      <div class="timer">⏱ 5 minutes</div>
+      <div class="npill" id="r1-np"></div>
+      <h2>Theme from <em>A Tale of Two Cities</em></h2>
+      <div class="qbox"><div class="ql">Your theme to match</div><p>The people who are thriving and the people who are suffering exist in the same world at the same moment — and most people in power never notice.</p><div class="qm">"</div></div>
+      <p class="sub">Find any existing work — a song, film, painting, poem, album cover, movie poster — that carries this theme. Upload an image of it. No explanation needed — let the image speak.</p>
+      <div class="coach" style="background:rgba(26,39,68,0.06);border-color:rgba(26,39,68,0.15);">
+        <div class="coach-title" style="color:var(--navy);font-size:15px;">How to approach this</div>
+        <p style="color:var(--text-mid);">Start by asking: does this work show two groups of people living completely different lives in the same world? Does someone in power fail to see what is happening around them? You are not looking for a perfect match — you are looking for the same underlying truth. Think across every class you have taken, every film you have seen, every song you know. The right work is already somewhere in your memory.</p>
+      </div>
+      <div class="dec"><span>❧</span></div>
+      <div class="field">
+        <label>Upload an image of your chosen work — required</label>
+        <div class="iz" id="r1-zone" onclick="document.getElementById('r1-file').click()">
+          <input type="file" id="r1-file" accept="image/*" onchange="handleFile('r1',this)">
+          <div class="zi">🖼</div>
+          <div class="zt"><strong>Click to browse</strong> or drag and drop<br><span style="font-size:12px;color:var(--text-light);">Album cover · Movie poster · Book cover · Painting · Photo</span></div>
+        </div>
+        <div class="or-div">or paste a URL</div>
+        <div class="url-row"><input type="text" id="r1-url" placeholder="https://..."><button onclick="loadUrl('r1')">Load</button></div>
+        <div class="img-pw" id="r1-pw"><img class="img-prev" id="r1-img" src="" alt="Preview"><button class="img-clr" onclick="clearImg('r1')">✕</button></div>
+      </div>
+      <div class="warn" id="w-r1">Please upload or link an image of your chosen work before continuing.</div>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-welcome')">← Back</button><button class="btn btn-p" onclick="adv('r1','s-r1-shot')">Review &amp; Screenshot →</button></div>
+    </div>
+
+    <!-- R1 SHOT -->
+    <div class="screen" id="s-r1-shot">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-1">Round 1 — Screenshot</span>
+      <h2>Review &amp; Post to Padlet</h2>
+      <div class="pcard" id="r1-pcard">
+        <div class="prl">Round 1 · A Tale of Two Cities Theme</div>
+        <div class="prn" id="r1-prn"></div>
+        <div class="prf">The theme</div>
+        <div class="prv">"The people who are thriving and the people who are suffering exist in the same world at the same moment — and most people in power never notice."</div>
+        <div class="prf">Our chosen work</div>
+        <img class="pri" id="r1-pri" src="" alt="" style="display:none;">
+      </div>
+      <div class="btn-row" style="margin-bottom:1rem;"><button class="btn btn-s" id="r1-sbt" onclick="copyShot('r1-pcard','r1-sbt')">📋 Copy screenshot</button></div>
+      <div class="sbox"><p>Copy the screenshot and paste it directly into Padlet.<br><strong>Column 1: A Tale of Two Cities Theme</strong></p></div>
+      <div class="padlet-note">Use your group members' names as the Padlet card title.</div>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-r1')">← Edit</button><button class="btn btn-p" onclick="goTo('s-r2')">Posted — Round 2 →</button></div>
+    </div>
+
+    <!-- ROUND 2 -->
+    <div class="screen" id="s-r2">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-2">Round 2 of 3</span>
+      <div class="timer">⏱ 5 minutes</div>
+      <div class="npill" id="r2-np"></div>
+      <h2>Paradox as a Tool</h2>
+      <div class="qbox"><div class="ql">Your task</div><p>Find any work — any theme, any medium — where the artist uses paradox to carry their argument. The paradox should be the point, not just decoration.</p><div class="qm">"</div></div>
+      <p class="sub">Any genre, any era. The only rule: the paradox has to be doing real work — two opposite truths held at the same time, deliberately.</p>
+      <div class="coach" style="background:rgba(107,31,42,0.05);border-color:rgba(107,31,42,0.18);">
+        <div class="coach-title" style="color:var(--burgundy);font-size:15px;">How to approach this</div>
+        <p style="color:var(--text-mid);">Remember what we said in class: a paradox is not a mistake — it is a choice. The artist is saying both of these things are real and I refuse to pretend otherwise. When you look at your chosen work, ask: what are the two opposite truths? Why could the artist not say this with just one side? Could they have resolved it, and did they choose not to? Your explanation should name both halves of the paradox and say what the tension between them is arguing.</p>
+      </div>
+      <div class="dec"><span>❧</span></div>
+      <div class="field">
+        <label>Upload an image of your chosen work — required</label>
+        <div class="iz" id="r2-zone" onclick="document.getElementById('r2-file').click()">
+          <input type="file" id="r2-file" accept="image/*" onchange="handleFile('r2',this)">
+          <div class="zi">🖼</div>
+          <div class="zt"><strong>Click to browse</strong> or drag and drop<br><span style="font-size:12px;color:var(--text-light);">Album cover · Movie poster · Book cover · Painting · Photo</span></div>
+        </div>
+        <div class="or-div">or paste a URL</div>
+        <div class="url-row"><input type="text" id="r2-url" placeholder="https://..."><button onclick="loadUrl('r2')">Load</button></div>
+        <div class="img-pw" id="r2-pw"><img class="img-prev" id="r2-img" src="" alt="Preview"><button class="img-clr" onclick="clearImg('r2')">✕</button></div>
+      </div>
+      <div class="field">
+        <label>What is the paradox, and what is it arguing? — required</label>
+        <textarea id="r2-expl" placeholder="Name the paradox specifically. What two opposite things are both true at the same time, and what does that tension argue?"></textarea>
+        <p class="hint">One or two sentences is plenty.</p>
+      </div>
+      <div class="warn" id="w-r2">Please complete both the image and the explanation before continuing.</div>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-r1-shot')">← Back</button><button class="btn btn-p" onclick="adv('r2','s-r2-shot')">Review &amp; Screenshot →</button></div>
+    </div>
+
+    <!-- R2 SHOT -->
+    <div class="screen" id="s-r2-shot">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-2">Round 2 — Screenshot</span>
+      <h2>Review &amp; Post to Padlet</h2>
+      <div class="pcard" id="r2-pcard">
+        <div class="prl">Round 2 · Paradox as a Tool</div>
+        <div class="prn" id="r2-prn"></div>
+        <img class="pri" id="r2-pri" src="" alt="" style="display:none;margin-bottom:0.75rem;">
+        <div class="prf">The paradox and its argument</div>
+        <div class="prv" id="r2-prve"></div>
+      </div>
+      <div class="btn-row" style="margin-bottom:1rem;"><button class="btn btn-s" id="r2-sbt" onclick="copyShot('r2-pcard','r2-sbt')">📋 Copy screenshot</button></div>
+      <div class="sbox"><p>Copy the screenshot and paste it into Padlet.<br><strong>Column 2: Paradox as a Tool</strong></p></div>
+      <div class="padlet-note">Use your group members' names as the Padlet card title.</div>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-r2')">← Edit</button><button class="btn btn-p" onclick="goTo('s-r3')">Posted — Round 3 →</button></div>
+    </div>
+
+    <!-- ROUND 3 -->
+    <div class="screen" id="s-r3">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div><div class="pd"></div><div class="pd"></div></div>
+      <span class="tag t-3">Round 3 of 3</span>
+      <div class="timer">⏱ 5 minutes</div>
+      <div class="npill" id="r3-np"></div>
+      <h2>Pride &amp; Prejudice</h2>
+      <div class="qbox"><div class="ql">Two tasks this round</div><p>First: write the central theme of <em>Pride &amp; Prejudice</em> as a whole — one specific sentence. Then find a work that carries that same theme and upload an image.</p><div class="qm">"</div></div>
+      <div class="coach">
+        <div class="coach-title">What a theme is — and is not</div>
+        <p>A theme is not a topic. A topic is one word. A theme makes an <strong style="color:var(--gold-light);">argument</strong> about that word.</p>
+        <ul>
+          <li>"The book is about marriage" — that is a topic, not a theme</li>
+          <li>"Austen writes about class" — still just a topic</li>
+          <li>A theme takes a side. It claims something about the world.</li>
+          <li>A theme says something about what it means to be human.</li>
+        </ul>
+        <div class="coach-eg">Ask yourself: what is Austen actually arguing? What does she believe about freedom, survival, and what people owe themselves versus what society demands of them? What does the whole novel add up to?</div>
+      </div>
+      <div class="coach" style="background:rgba(38,78,38,0.05);border-color:rgba(38,78,38,0.18);margin-top:0.75rem;">
+        <div class="coach-title" style="color:#285a28;font-size:15px;">How to approach this</div>
+        <p style="color:var(--text-mid);">Think about the whole arc of the novel — not just one character or one scene. Think about what happens to Elizabeth, to Charlotte, to Jane, to Lydia. What does the system do to each of them? What does Austen seem to be saying about that? Your theme sentence should make a claim that holds true across all of them — something Austen is arguing about the world, not just describing about the plot. Once you have your sentence, ask: what other story, song, or image makes the exact same argument?</p>
+      </div>
+      <div class="dec"><span>❧</span></div>
+      <div class="field">
+        <label>Your theme for Pride &amp; Prejudice — one specific sentence — required</label>
+        <textarea id="r3-theme" placeholder="e.g. 'Society forces people to choose between financial survival and personal integrity — and punishes them either way.'" style="min-height:90px;"></textarea>
+        <p class="hint">Not a summary. Not a topic. A claim about the world that Austen is making across the entire novel.</p>
+      </div>
+      <div class="field">
+        <label>Upload an image of a work that carries that same theme — required</label>
+        <p class="hint" style="margin-bottom:0.5rem;">A photo, movie poster, book cover, album art, or painting — anything that holds the same argument as your theme sentence.</p>
+        <div class="iz" id="r3-zone" onclick="document.getElementById('r3-file').click()">
+          <input type="file" id="r3-file" accept="image/*" onchange="handleFile('r3',this)">
+          <div class="zi">🖼</div>
+          <div class="zt"><strong>Click to browse</strong> or drag and drop<br><span style="font-size:12px;color:var(--text-light);">Photo · Movie poster · Book cover · Album art · Painting</span></div>
+        </div>
+        <div class="or-div">or paste a URL</div>
+        <div class="url-row"><input type="text" id="r3-url" placeholder="https://..."><button onclick="loadUrl('r3')">Load</button></div>
+        <div class="img-pw" id="r3-pw"><img class="img-prev" id="r3-img" src="" alt="Preview"><button class="img-clr" onclick="clearImg('r3')">✕</button></div>
+      </div>
+      <div class="warn" id="w-r3">Please complete both the theme sentence and the image before continuing.</div>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-r2-shot')">← Back</button><button class="btn btn-p" onclick="adv('r3','s-r3-shot')">Review &amp; Screenshot →</button></div>
+    </div>
+
+    <!-- R3 SHOT -->
+    <div class="screen" id="s-r3-shot">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div><div class="pd"></div></div>
+      <span class="tag t-3">Round 3 — Screenshot</span>
+      <h2>Review &amp; Post to Padlet</h2>
+      <div class="pcard" id="r3-pcard">
+        <div class="prl">Round 3 · Pride &amp; Prejudice</div>
+        <div class="prn" id="r3-prn"></div>
+        <div class="prf">Our theme for Pride &amp; Prejudice</div>
+        <div class="prv" id="r3-prvt"></div>
+        <div class="prf">Work that carries this theme</div>
+        <img class="pri" id="r3-pri" src="" alt="" style="display:none;">
+      </div>
+      <div class="btn-row" style="margin-bottom:1rem;"><button class="btn btn-s" id="r3-sbt" onclick="copyShot('r3-pcard','r3-sbt')">📋 Copy screenshot</button></div>
+      <div class="sbox"><p>Copy the screenshot and paste it into Padlet.<br><strong>Column 3: Pride &amp; Prejudice</strong></p></div>
+      <div class="padlet-note">Use your group members' names as the Padlet card title.</div>
+      <div class="dec"><span>✦</span></div>
+      <p class="sub" style="margin:0;text-align:center;">All three rounds complete. Ready for the bonus quiz?</p>
+      <div class="btn-row"><button class="btn" onclick="goTo('s-r3')">← Edit</button><button class="btn btn-p" onclick="startQuiz()">Begin Bonus Quiz →</button></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="s-quiz">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd active"></div></div>
+      <span class="tag t-b">Bonus Round</span>
+      <div class="qprog" id="qprog">Question 1 of 10</div>
+      <div class="qq" id="qq"></div>
+      <div class="qopts" id="qopts"></div>
+      <div class="qfb" id="qfb"></div>
+      <div class="btn-row"><button class="btn btn-p" id="qnext" onclick="nextQ()" style="display:none;">Next question →</button></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="screen" id="s-results">
+      <div class="prog-wrap"><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div><div class="pd done"></div></div>
+      <span class="tag t-b">Complete</span>
+      <h2>Quiz Results</h2>
+      <div class="pcard" id="res-card">
+        <div class="prl">Bonus Quiz · Theme Hunter · Week 12</div>
+        <div class="prn" id="res-names"></div>
+        <div class="swrap">
+          <div class="sbig" id="sbig">0/10</div>
+          <div class="smsg" id="smsg"></div>
+          <div class="sbar"><div class="sfill" id="sfill"></div></div>
+        </div>
+        <div class="bdown" id="bdown"></div>
+      </div>
+      <div class="btn-row" style="margin-bottom:1rem;"><button class="btn btn-s" id="res-sbt" onclick="copyShot('res-card','res-sbt')">📋 Copy screenshot</button></div>
+      <div class="sbox"><p>Copy your results and paste into Padlet.<br><strong>Final Column: Bonus Quiz Results</strong></p></div>
+      <div class="padlet-note">Include your name so your teacher can see your individual score.</div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /page-wrap -->
+
+<script>
+let gnames='';
+let imgs={r1:null,r2:null,r3:null};
+
+const Qs=[
+  {q:"What literary device is Dickens primarily using when he writes 'It was the best of times, it was the worst of times'?",opts:["Oxymoron","Paradox","Irony","Juxtaposition"],ans:1,fb:"It is a paradox — both sides are genuinely true at once, and Dickens refuses to resolve the tension. He is not describing one shared experience; he is saying the world holds both realities simultaneously."},
+  {q:"What is the difference between a topic and a theme?",opts:["A topic is more specific than a theme","A theme makes an argument about life; a topic just names a subject","They mean the same thing","A theme is always shorter"],ans:1,fb:"A topic is a word — 'inequality.' A theme makes a claim — 'inequality survives because those with the power to end it benefit from its existence.' A theme takes a side."},
+  {q:"What year was A Tale of Two Cities published?",opts:["1775","1793","1859","1812"],ans:2,fb:"Dickens published A Tale of Two Cities in 1859, set during the French Revolution of 1775–1793. He was writing about the past to comment on the present."},
+  {q:"Which device involves placing two contrasting things side by side with no comment?",opts:["Paradox","Oxymoron","Irony","Juxtaposition"],ans:3,fb:"Juxtaposition needs no words. Dickens places aristocratic luxury next to a child being crushed in the street and makes no comment — the proximity does all the work."},
+  {q:"What is the central theme of A Tale of Two Cities as discussed in class?",opts:["Revolution is always violent and destructive","Love is the only thing that survives social collapse","Wealth and suffering exist side by side, and those in power choose not to see it","France was more corrupt than England in 1775"],ans:2,fb:"Dickens announces this theme on page one as a paradox and spends the entire novel proving it. The unresolved tension between thriving and suffering — in the same world, at the same moment — is the argument."},
+  {q:"An oxymoron is best defined as:",opts:["A statement that seems impossible but reveals a deeper truth","Two contradictory words fused into a single phrase","Saying one thing while meaning another","Placing two contrasting images side by side"],ans:1,fb:"'Deafening silence.' 'Living death.' 'Sweet sorrow.' The contradiction lives inside the phrase — compressed, with no room to breathe between the two opposites."},
+  {q:"What historical event provides the backdrop for A Tale of Two Cities?",opts:["The American Revolution","The Industrial Revolution","The English Civil War","The French Revolution"],ans:3,fb:"The French Revolution, 1775–1793. Dickens uses it not as background scenery but as the argument itself — this is what happens when a society ignores its poor for long enough."},
+  {q:"Why do artists reach for paradox rather than stating their argument directly?",opts:["To confuse the audience on purpose","Because paradox is easier to write than direct argument","Because some truths are too big for a simple sentence — paradox refuses to let the audience pick a side","To make their work seem more intellectual"],ans:2,fb:"Banksy, Orwell, Seuss — they all refuse to pick a side because picking one would be a lie. The truth they are after needs both halves to be complete."},
+  {q:"Irony is Austen's primary weapon in Pride & Prejudice. What best describes irony?",opts:["Fusing two opposite words into one phrase","Placing two contrasting scenes next to each other","Using paradox to reveal a hidden theme","Saying one thing while meaning another — the gap between surface and meaning is the point"],ans:3,fb:"Austen's opening — 'It is a truth universally acknowledged...' — says the opposite of what she means and trusts you to catch it. The gap between stated meaning and real meaning is exactly where her theme lives."},
+  {q:"Dickens's opening paragraph starts as a paradox and builds into something else. What does it ultimately become?",opts:["An oxymoron — the tension compresses into one phrase","Pure irony — he means the opposite of everything he says","Juxtaposition — two separate worlds slammed together with no resolution","A simple contradiction — one side must be wrong"],ans:2,fb:"It begins as paradox — how can one moment be both? But as the pairs stack up, Dickens reveals two completely separate realities — wealthy and poor — occupying the same world. That proximity, with no comment, is juxtaposition. The argument lives in the gap."}
+];
+
+let qi=0,sc=0,ans=[];
+
+function showW(id,msg){const el=document.getElementById(id);if(msg)el.textContent=msg;el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function hideW(id){document.getElementById(id).classList.remove('show');}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startRounds(){
+  const n=document.getElementById('group-names').value.trim();
+  if(!n){showW('w-welcome','Please enter your group members\' names before continuing.');return;}
+  hideW('w-welcome');
+  gnames=n;
+  document.querySelectorAll('.npill').forEach(el=>el.textContent=gnames);
+  goTo('s-r1');
+}
+
+function adv(round,to){
+  hideW('w-'+round);
+  if(round==='r1'){
+    if(!imgs.r1){showW('w-r1','Please upload or link an image of your chosen work before continuing.');return;}
+    document.getElementById('r1-prn').textContent=gnames;
+    const i=document.getElementById('r1-pri');
+    if(imgs.r1){i.src=imgs.r1;i.style.display='block';}else i.style.display='none';
+  }
+  if(round==='r2'){
+    const e=document.getElementById('r2-expl').value.trim();
+    if(!imgs.r2&&!e){showW('w-r2','Please upload an image and write your explanation before continuing.');return;}
+    if(!imgs.r2){showW('w-r2','Please upload an image of your chosen work before continuing.');return;}
+    if(!e){showW('w-r2','Please write your explanation before continuing.');return;}
+    document.getElementById('r2-prn').textContent=gnames;
+    const i=document.getElementById('r2-pri');
+    if(imgs.r2){i.src=imgs.r2;i.style.display='block';}else i.style.display='none';
+    document.getElementById('r2-prve').textContent=e;
+  }
+  if(round==='r3'){
+    const th=document.getElementById('r3-theme').value.trim();
+    if(!th&&!imgs.r3){showW('w-r3','Please write your theme sentence and upload an image before continuing.');return;}
+    if(!th){showW('w-r3','Please write your theme sentence for Pride & Prejudice before continuing.');return;}
+    if(!imgs.r3){showW('w-r3','Please upload an image of your chosen work before continuing.');return;}
+    document.getElementById('r3-prn').textContent=gnames;
+    document.getElementById('r3-prvt').textContent=th;
+    const i=document.getElementById('r3-pri');
+    if(imgs.r3){i.src=imgs.r3;i.style.display='block';}else i.style.display='none';
+  }
+  goTo(to);
+}
+
+function handleFile(r,input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>setImg(r,e.target.result);
+  reader.readAsDataURL(file);
+}
+function loadUrl(r){const url=document.getElementById(r+'-url').value.trim();if(!url)return;setImg(r,url);}
+function setImg(r,src){
+  imgs[r]=src;
+  document.getElementById(r+'-img').src=src;
+  document.getElementById(r+'-pw').classList.add('has-img');
+}
+function clearImg(r){
+  imgs[r]=null;
+  document.getElementById(r+'-img').src='';
+  document.getElementById(r+'-pw').classList.remove('has-img');
+  document.getElementById(r+'-file').value='';
+  document.getElementById(r+'-url').value='';
+}
+
+['r1','r2','r3'].forEach(r=>{
+  const z=document.getElementById(r+'-zone');if(!z)return;
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag-over');});
+  z.addEventListener('dragleave',()=>z.classList.remove('drag-over'));
+  z.addEventListener('drop',e=>{
+    e.preventDefault();z.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type.startsWith('image/')){
+      const rd=new FileReader();rd.onload=ev=>setImg(r,ev.target.result);rd.readAsDataURL(f);
+    }
+  });
+});
+
+function copyShot(cid,bid){
+  const el=document.getElementById(cid);
+  const btn=document.getElementById(bid);
+  btn.textContent='⏳ Capturing...';
+  html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,allowTaint:true}).then(canvas=>{
+    canvas.toBlob(blob=>{
+      if(!blob){btn.textContent='📋 Copy screenshot';alert('Could not capture. Please screenshot manually.');return;}
+      navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>{
+        btn.textContent='✓ Copied!';btn.classList.add('ok');
+        setTimeout(()=>{btn.textContent='📋 Copy screenshot';btn.classList.remove('ok');},3000);
+      }).catch(()=>{btn.textContent='📋 Copy screenshot';alert('Clipboard blocked by browser. Please screenshot the card manually.');});
+    },'image/png');
+  }).catch(()=>{btn.textContent='📋 Copy screenshot';alert('Capture failed. Please screenshot manually.');});
+}
+
+function startQuiz(){
+  qi=0;sc=0;ans=[];
+  document.getElementById('res-names').textContent=gnames;
+  goTo('s-quiz');renderQ();
+}
+function renderQ(){
+  const q=Qs[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${Qs.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qfb').style.display='none';
+  document.getElementById('qnext').style.display='none';
+  const opts=document.getElementById('qopts');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='qopt';b.textContent=o;
+    b.onclick=()=>selAns(i);opts.appendChild(b);
+  });
+}
+function selAns(i){
+  const q=Qs[qi];
+  const btns=Array.from(document.querySelectorAll('.qopt'));
+  const ok=i===q.ans;
+  if(ok) sc++;
+  // Hide all options first
+  btns.forEach((b,idx)=>{
+    if(ok){
+      // Correct — just show the selected one as correct, hide others
+      if(idx===i){b.classList.add('correct');}
+      else{b.style.display='none';}
+    } else {
+      // Wrong — show selected (wrong) and correct answer only
+      if(idx===i){b.classList.add('wrong');}
+      else if(idx===q.ans){b.classList.add('reveal');}
+      else{b.style.display='none';}
+    }
+    b.classList.add('disabled');
+  });
+  ans.push({ok,chosen:i,right:q.ans});
+  const fb=document.getElementById('qfb');fb.textContent=q.fb;fb.style.display='block';
+  const nxt=document.getElementById('qnext');
+  nxt.textContent=qi<Qs.length-1?'Next question →':'See my results →';
+  nxt.style.display='inline-flex';
+}
+function nextQ(){qi++;if(qi>=Qs.length)showRes();else renderQ();}
+function showRes(){
+  goTo('s-results');
+  document.getElementById('sbig').textContent=sc+'/10';
+  setTimeout(()=>document.getElementById('sfill').style.width=(sc*10)+'%',200);
+  let msg='';
+  if(sc>=9)msg='Excellent — you were paying close attention today.';
+  else if(sc>=7)msg='Strong work. A few things worth revisiting before next class.';
+  else if(sc>=5)msg='Solid start. Review today\'s notes on anything you missed.';
+  else msg='Keep going — these ideas take time to settle. Reread your notes tonight.';
+  document.getElementById('smsg').textContent=msg;
+}
+</script>
+</body>
+</html>
